@@ -38,12 +38,8 @@ namespace reasoner {
             int get_monotonicity_class(void);
             bool is_legal(const move& m) const;
         private:
-            inline uint32_t get_movers_up(const uint32_t&) const;
-            inline uint32_t get_movers_down(const uint32_t&) const;
             inline uint32_t get_jumpers_up(const uint32_t&, const uint32_t&) const;
             inline uint32_t get_jumpers_down(const uint32_t&, const uint32_t&) const;
-            inline void get_move_list_up(uint32_t, std::vector<move>&);
-            inline void get_move_list_down(uint32_t, std::vector<move>&);
             inline void get_jump_list_up(uint32_t, const uint32_t&, std::vector<move>&);
             inline void get_jump_list_down(uint32_t, const uint32_t&, std::vector<move>&);
             inline uint32_t msb(const uint32_t&) const;

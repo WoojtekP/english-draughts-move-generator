@@ -88,8 +88,49 @@ namespace reasoner {
             get_jump_list_down(jumpersDown, enemies, moves);
         }
         else {
-            get_move_list_up(get_movers_up(piecesU), moves);
-            get_move_list_down(get_movers_down(piecesD), moves);
+            // up
+            uint32_t movers = (empty >> 4) & piecesU;
+            while(movers) {
+                uint32_t piece = msb(movers);
+                moves.push_back(piece | (piece << 4));
+                movers ^= piece;
+            }
+            
+            movers = (empty >> 3) & piecesU & 0x0E0E0E0E;
+            while(movers) {
+                uint32_t piece = msb(movers);
+                moves.push_back(piece | (piece << 3));
+                movers ^= piece;
+            }
+            
+            movers |= (empty >> 5) & piecesU & 0x00707070;
+            while(movers) {
+                uint32_t piece = msb(movers);
+                moves.push_back(piece | (piece << 5));
+                movers ^= piece;
+            }
+            
+            // down
+            movers = (empty << 4) & piecesD;
+            while(movers) {
+                uint32_t piece = msb(movers);
+                moves.push_back(piece | (piece >> 4));
+                movers ^= piece;
+            }
+            
+            movers = (empty << 3) & piecesD & 0x70707070;
+            while(movers) {
+                uint32_t piece = msb(movers);
+                moves.push_back(piece | (piece >> 3));
+                movers ^= piece;
+            }
+            
+            movers = (empty << 5) & piecesD & 0x0E0E0E00;
+            while(movers) {
+                uint32_t piece = msb(movers);
+                moves.push_back(piece | (piece >> 5));
+                movers ^= piece;
+            }
         }
         if (moves.size() == 0) {
             variables[current_player - 1] = 0;
@@ -109,23 +150,6 @@ namespace reasoner {
         return false;
     }
 
-    inline uint32_t game_state::get_movers_up(const uint32_t& pieces) const {
-        if (pieces == 0)
-            return 0;
-        uint32_t movers = (empty >> 4) & pieces;
-        movers |= (empty >> 3) & pieces & 0x0E0E0E0E;
-        movers |= (empty >> 5) & pieces & 0x00707070;
-        return movers;
-    }
-    
-    inline uint32_t game_state::get_movers_down(const uint32_t& pieces) const {
-        if (pieces == 0)
-            return 0;
-        uint32_t movers = (empty << 4) & pieces;
-        movers |= (empty << 3) & pieces & 0x70707070;
-        movers |= (empty << 5) & pieces & 0x0E0E0E00;
-        return movers;
-    }
 
     inline uint32_t game_state::get_jumpers_down(const uint32_t& pieces, const uint32_t& enemies) const {
         if (pieces == 0)
@@ -145,44 +169,6 @@ namespace reasoner {
         jumps |= pieces & 0x00707070 & (empty >> 9) & (enemies >> 5);  // even -> right
         jumps |= pieces & 0x00E0E0E0 & (empty >> 7) & (enemies >> 4);  // even -> left
         return jumps;
-    }
-
-    inline void game_state::get_move_list_up(uint32_t pieces, std::vector<move>& moves) {
-        while(pieces) {
-            uint32_t piece = msb(pieces);
-            bool mv = (empty >> 4) & piece;
-            if (mv)
-                moves.push_back(piece | (piece << 4));
-            
-            mv = (empty >> 3) & piece & 0x0E0E0E0E;
-            if (mv) 
-                moves.push_back(piece | (piece << 3));
-            
-            mv = (empty >> 5) & piece & 0x00707070;
-            if (mv)
-                moves.push_back(piece | (piece << 5));
-
-            pieces ^= piece;
-        }
-    }
-
-    inline void game_state::get_move_list_down(uint32_t pieces, std::vector<move>& moves) {
-        while(pieces) {
-            uint32_t piece = msb(pieces);
-            bool mv = (empty << 4) & piece;
-            if (mv)
-                moves.push_back(piece | (piece >> 4));
-            
-            mv = (empty << 3) & piece & 0x70707070;
-            if (mv)
-                moves.push_back(piece | (piece >> 3)); 
-            
-            mv = (empty << 5) & piece & 0x0E0E0E00;
-            if (mv)
-                moves.push_back(piece | (piece >> 5));
-            
-            pieces ^= piece;
-        }
     }
 
     inline void game_state::get_jump_list_up(uint32_t jumpers, const uint32_t& enemies, std::vector<move>& moves) {
