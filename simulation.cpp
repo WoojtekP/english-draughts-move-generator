@@ -9,6 +9,9 @@ typedef unsigned long ulong;
 constexpr int KEEPER = 0;
 
 std::mt19937 random_generator(1);
+inline uint random_choice(const uint bound) {
+    return std::uniform_int_distribution<uint>(0,bound)(random_generator);
+}
 
 ulong goals_avg[reasoner::NUMBER_OF_PLAYERS] = {};
 int goals_min[reasoner::NUMBER_OF_PLAYERS] = {};
@@ -42,8 +45,7 @@ void count_terminal(const reasoner::game_state state, uint depth){
 }
 
 std::optional<uint> try_to_choose_random_from_monotonics(std::vector<reasoner::move>& monotonic_moves, const reasoner::game_state& state){
-    std::uniform_int_distribution<uint> distribution(0,monotonic_moves.size()-1);
-    uint chosen_move = distribution(random_generator);
+    uint chosen_move = random_choice(monotonic_moves.size()-1);
     if(state.is_legal(monotonic_moves[chosen_move]))
         return chosen_move;
     else{
@@ -77,7 +79,7 @@ void random_simulation_with_monotonic_moves(){
                 moves_count += monotonic_moves[monotonicity_class].size();
             }
             if(auto chosen_move = choose_random_from_monotonics_or_leave_empty(monotonic_moves[monotonicity_class], state)){
-                states_count++;
+                depth++;
                 state.apply_move(monotonic_moves[monotonicity_class][*chosen_move]);
             }
             else{
@@ -94,8 +96,7 @@ void random_simulation_with_monotonic_moves(){
             else{
                 depth++;
                 moves_count += legal_moves.size();
-                std::uniform_int_distribution<> distribution(0,legal_moves.size()-1);
-                uint chosen_move = distribution(random_generator);
+                uint chosen_move = random_choice(legal_moves.size()-1);
                 state.apply_move(legal_moves[chosen_move]);
             }
         }
@@ -122,8 +123,7 @@ void random_simulation(){
         else{
             depth++;
             moves_count += legal_moves.size();
-            std::uniform_int_distribution<uint> distribution(0,legal_moves.size()-1);
-            uint chosen_move = distribution(random_generator);
+            uint chosen_move = random_choice(legal_moves.size()-1);
             state.apply_move(legal_moves[chosen_move]);
         }
         while(state.get_current_player() == KEEPER){

@@ -61,13 +61,6 @@ namespace reasoner {
         }
     }
 
-    std::vector<move> game_state::get_all_moves(resettable_bitarray_stack& cache) {
-        std::vector<move> result;
-        result.reserve(100);
-        get_all_moves(cache, result);
-        return result;
-    }
-
     void game_state::get_all_moves(resettable_bitarray_stack&, std::vector<move>& moves) {
         moves.clear();
         if (king_moves >= 20) {
